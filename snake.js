@@ -2,6 +2,10 @@ function clear(ctx) {
   ctx.clearRect(0, 0, 600, 600);
 }
 
+let gameLoop = undefined;
+let width = 39;
+let height = 39;
+let alive = true;
 let direction = 'right';
 let cell = 15;
 let snake = [{x: 20, y: 20}, {x: 19, y: 20}, {x: 18, y: 20}];
@@ -47,20 +51,36 @@ function drawSnake(ctx) {
   }
 }
 
-function moveSnake() {
+function moveSnakeWrap() {
   snake.pop();
   switch (direction) {
     case 'right':
-      snake.unshift({x: snake[0].x + 1, y: snake[0].y});
+      if (snake[0].x == width) {
+        snake.unshift({x: 0, y: snake[0].y});
+      } else {
+        snake.unshift({x: snake[0].x + 1, y: snake[0].y});
+      }
       break;
     case 'left':
-      snake.unshift({x: snake[0].x - 1, y: snake[0].y});
+      if (snake[0].x == 0) {
+        snake.unshift({x: width, y: snake[0].y});
+      } else {
+        snake.unshift({x: snake[0].x - 1, y: snake[0].y});
+      }
       break;
     case 'up':
-      snake.unshift({x: snake[0].x, y: snake[0].y - 1});
+      if (snake[0].y == 0) {
+        snake.unshift({x: snake[0].x, y: height});
+      } else {
+        snake.unshift({x: snake[0].x, y: snake[0].y - 1});
+      }
       break;
     case 'down':
-      snake.unshift({x: snake[0].x, y: snake[0].y + 1});
+      if (snake[0].y == height) {
+        snake.unshift({x: snake[0].x, y: 0});
+      } else {
+        snake.unshift({x: snake[0].x, y: snake[0].y + 1});
+      }
       break;
   }
 }
@@ -82,6 +102,23 @@ function growSnake() {
   }
 }
 
+function checkCollisionSnake() {
+  for (let i = 1 ; i < snake.length ; i++) {
+    if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function gameOver(ctx) {
+  // TODO: Better game over function
+  ctx.fillStyle = 'black';
+  ctx.font = "40px Arial";
+  ctx.fillText("Game Over", 300, 300);
+}
+
 function draw2() {
   const canvas = document.getElementById("game");
   const ctx = canvas.getContext("2d");
@@ -90,18 +127,25 @@ function draw2() {
   ctx.fillRect(0, 0, 600, 600);
   checkInput();
   drawSnake(ctx);
-  moveSnake();
+  moveSnakeWrap();
   drawApple(ctx);
   if (checkCollisionApple()) {
     getRandomApple();
     growSnake();
   }
-  // TODO: check collision with snake
-  // TODO: wrap map behind walls
+  if (checkCollisionSnake()) {
+    clearInterval(gameLoop);
+    gameOver(ctx);
+    alive = false;
+  }
 }
 
 
 function init() {
   // TODO: a menu before playing
-  setInterval(draw2, 100);
+  if (alive) {
+    gameLoop = setInterval(draw2, 100);
+  } else {
+    console.log("game over");
+  }
 }
