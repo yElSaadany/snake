@@ -18,8 +18,18 @@ function drawApple(ctx) {
 }
 
 function getRandomApple() {
-  apple = {x: Math.floor((Math.random() * 39)),
-           y: Math.floor((Math.random() * 39))};
+  let appleInSnake = false;
+  do {
+    apple = {
+      x: Math.floor((Math.random() * 39)),
+      y: Math.floor((Math.random() * 39))
+    };
+    for (let i = 0 ; i < snake.length ; i++) {
+      if (apple.x == snake[i].x && apple.y == snake[i].y) {
+        appleInSnake = true;
+      }
+    }
+  } while (appleInSnake);
 }
 
 
@@ -32,13 +42,13 @@ function checkCollisionApple() {
 
 function checkInput() {
   document.addEventListener('keydown', (event) => {
-    if (event.key == 'ArrowRight' && direction != 'left') {
+    if ((event.key == 'ArrowRight' || event.key == 'l') && direction != 'left') {
       direction = 'right';
-    } else if (event.key == 'ArrowLeft' && direction != 'right') {
+    } else if ((event.key == 'ArrowLeft' || event.key == 'h') && direction != 'right') {
       direction = 'left';
-    } else if (event.key == 'ArrowUp' && direction != 'down') {
+    } else if ((event.key == 'ArrowUp' || event.key == 'k') && direction != 'down') {
       direction = 'up';
-    } else if (event.key == 'ArrowDown' && direction != 'up') {
+    } else if ((event.key == 'ArrowDown' || event.key == 'j') && direction != 'up') {
       direction = 'down';
     }
   });
